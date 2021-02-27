@@ -1,6 +1,5 @@
 const uuid = require('node-uuid');
 const randomstring = require('randomstring');
-const _ = require('lodash');
 const crypto = require('crypto');
 const User = require('./neo4j/user');
 
@@ -25,33 +24,38 @@ const register = function(session, username, password) {
               const record = createdUser.next();
               return new User(record.get('user'));
             }
-
           });
       }
     });
 };
 
 const me = function(session, apiKey) {
-  return session.readTransaction((txc) => txc.run('MATCH (user:User {api_key: $api_key}) RETURN user', { api_key: apiKey }))
-    .then((results) => {
-      if (_.isEmpty(results.records)) {
+  return session.query('MATCH (user:User {api_key: $api_key}) RETURN user', { api_key: apiKey })
+    .then((foundedUser) => {
+      if (!foundedUser.hasNext()) {
         throw { message: 'invalid authorization key', status: 401 };
       }
-      return new User(results.records[0].get('user'));
+      while (foundedUser.hasNext()) {
+        const record = foundedUser.next();
+        return new User(record.get('user'));
+      }
     });
 };
 
 const login = function(session, username, password) {
-  return session.readTransaction((txc) => txc.run('MATCH (user:User {username: $username}) RETURN user', { username }))
-    .then((results) => {
-      if (_.isEmpty(results.records)) {
+  return session.query('MATCH (user:User {username: $username}) RETURN user', { username })
+    .then((foundedUser) => {
+      if (!foundedUser.hasNext()) {
         throw { username: 'username does not exist', status: 400 };
       } else {
-        const dbUser = _.get(results.records[0].get('user'), 'properties');
-        if (dbUser.password != hashPassword(username, password)) {
-          throw { password: 'wrong password', status: 400 };
+        while (foundedUser.hasNext()) {
+          const record = foundedUser.next();
+          const dbUser = (record.get('user')).properties;
+          if (dbUser.password !== hashPassword(username, password)) {
+            throw { password: 'wrong password', status: 400 };
+          }
+          return { token: dbUser.api_key };
         }
-        return { token: _.get(dbUser, 'api_key') };
       }
     });
 };

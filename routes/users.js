@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const Users = require('../models/users');
 const { writeResponse } = require('../helpers/response');
 const loginRequired = require('../middlewares/loginRequired');
@@ -91,8 +90,7 @@ exports.register = function(req, res, next) {
  *         description: invalid credentials
  */
 exports.login = function(req, res, next) {
-  const username = _.get(req.body, 'username');
-  const password = _.get(req.body, 'password');
+  const { username, password } = req.body;
 
   if (!username) {
     throw { username: 'This field is required.', status: 400 };
@@ -101,7 +99,7 @@ exports.login = function(req, res, next) {
     throw { password: 'This field is required.', status: 400 };
   }
 
-  Users.login(dbUtils.getSession(req), username, password)
+  Users.login(dbUtils.getSession(), username, password)
     .then((response) => writeResponse(res, response))
     .catch(next);
 };
@@ -138,7 +136,7 @@ exports.me = function(req, res, next) {
     }
 
     const token = match[1];
-    Users.me(dbUtils.getSession(req), token)
+    Users.me(dbUtils.getSession(), token)
       .then((response) => writeResponse(res, response))
       .catch(next);
   });
