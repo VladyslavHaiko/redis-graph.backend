@@ -1,40 +1,29 @@
 const _ = require('lodash');
-const Person = require('../models/neo4j/person');
+const Person = require('./neo4j/person');
 
-const _singlePersonWithDetails = function (record) {
-  if (record.length) {
+const _singlePersonWithDetails = function(person) {
+  if (person.length) {
     const result = {};
-    _.extend(result, new Person(record.get('person')));
+    _.extend(result, new Person(person.get('person')));
     // mappings are temporary until the neo4j driver team decides what to do about numbers
-    result.directed = _.map(record.get('directed'), record => {
-      return record;
-    });
-    result.produced = _.map(record.get('produced'), record => {
-      return record;
-    });
-    result.wrote = _.map(record.get('wrote'), record => {
-      return record;
-    });
-    result.actedIn = _.map(record.get('actedIn'), record => {
-      return record;
-    });
-    result.related = _.map(record.get('related'), record => {
-      return record;
-    });
+    result.directed = _.map(person.get('directed'), (record) => record);
+    result.produced = _.map(person.get('produced'), (record) => record);
+    result.wrote = _.map(person.get('wrote'), (record) => record);
+    result.actedIn = _.map(person.get('actedIn'), (record) => record);
+    result.related = _.map(person.get('related'), (record) => record);
     return result;
   }
-  else {
-    return null;
-  }
+
+  return null;
 };
 
 // return many people
-function _manyPeople(neo4jResult) {
-  return neo4jResult.records.map(r => new Person(r.get('person')))
+function _manyPeople(listOfPersons) {
+  return listOfPersons._results.map((r) => new Person(r.get('person')));
 }
 
 // get a single person by id
-const getById = function (session, id) {
+const getById = function(session, id) {
   const query = [
     'MATCH (person:Person {tmdbId: $id})',
     'OPTIONAL MATCH (person)-[:DIRECTED]->(d:Movie)',
@@ -50,28 +39,22 @@ const getById = function (session, id) {
     'collect(DISTINCT{ name:relatedPerson.name, id:relatedPerson.tmdbId, poster_image:relatedPerson.poster, role:relatedRole.role}) AS related'
   ].join('\n');
 
-  return session.readTransaction(txc =>
-      txc.run(query, {id: id})
-    ).then(result => {
-      if (!_.isEmpty(result.records)) {
-        return _singlePersonWithDetails(result.records[0]);
-      }
-      else {
-        throw {message: 'person not found', status: 404}
-      }
-    });
+  return session.query(query, { id }).then((result) => {
+    if (result.hasNext()) {
+      return _singlePersonWithDetails(result._results[0]);
+    }
+    throw { message: 'person not found', status: 404 };
+  });
 };
 
 // get all people
-const getAll = function (session) {
-  return session.readTransaction(txc =>
-      txc.run('MATCH (person:Person) RETURN person')
-    ).then(result => _manyPeople(result));
+const getAll = function(session) {
+  return session.query('MATCH (person:Person) RETURN person').then((result) => _manyPeople(result));
 };
 
-// get people in Bacon path, return many persons 
-const getBaconPeople = function (session, name1, name2) {
-//needs to be optimized
+// get people in Bacon path, return many persons
+const getBaconPeople = function(session, name1, name2) {
+// needs to be optimized
   const query = [
     'MATCH p = shortestPath( (p1:Person {name: $name1 })-[:ACTED_IN*]-(target:Person {name: $name2 }) )',
     'WITH [n IN nodes(p) WHERE n:Person | n] as bacon',
@@ -79,16 +62,14 @@ const getBaconPeople = function (session, name1, name2) {
     'RETURN DISTINCT person'
   ].join('\n');
 
-  return session.readTransaction(txc =>
-      txc.run(query, {
-        name1: name1,
-        name2: name2
-      })
-    ).then(result => _manyPeople(result))
+  return session.query(query, {
+    name1,
+    name2
+  }).then((result) => _manyPeople(result));
 };
 
 module.exports = {
-  getAll: getAll,
-  getById: getById,
-  getBaconPeople: getBaconPeople
+  getAll,
+  getById,
+  getBaconPeople
 };

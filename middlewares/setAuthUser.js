@@ -14,7 +14,7 @@ module.exports = function setAuthUser(req, res, next) {
     }
     const token = match[1];
 
-    Users.me(dbUtils.getSession(req), token)
+    Users.me(dbUtils.getSession(), token)
       .then((user) => {
         req.user = user;
         next();

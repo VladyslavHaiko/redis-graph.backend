@@ -27,6 +27,7 @@ module.exports = {
     'dot-notation': 'error',
     'eol-last': 'error',
     eqeqeq: 'error',
+    'func-names': 'off',
     'guard-for-in': 'off',
     'global-require': 'off',
     indent: [
@@ -71,7 +72,7 @@ module.exports = {
     }],
     'no-magic-numbers': ['off', { ignoreArrayIndexes: true }],
     'no-multi-spaces': 'error',
-    'no-multi-str': 'error',
+    'no-multi-str': 'off',
     'no-multiple-empty-lines': 'error',
     'no-new': 'error',
     'comma-dangle': 'off',

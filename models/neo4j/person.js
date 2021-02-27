@@ -2,8 +2,10 @@
 
 const _ = require('lodash');
 
-const Person = module.exports = function (_node) {
+const Person = function(_node) {
   _.extend(this, _node.properties);
   this.id = this.tmdbId;
   this.poster_image = this.poster;
 };
+
+module.exports = Person;

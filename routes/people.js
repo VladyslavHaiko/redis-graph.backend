@@ -1,7 +1,6 @@
-const People = require('../models/people')
-  , _ = require('lodash')
-  , writeResponse = require('../helpers/response').writeResponse
-  , dbUtils = require('../neo4j/dbUtils');
+const People = require('../models/people');
+const { writeResponse } = require('../helpers/response');
+const dbUtils = require('../neo4j/dbUtils');
 
 /**
  * @swagger
@@ -35,9 +34,9 @@ const People = require('../models/people')
  *           items:
  *             $ref: '#/definitions/Person'
  */
-exports.list = function (req, res, next) {
-  People.getAll(dbUtils.getSession(req))
-    .then(response => writeResponse(res, response))
+exports.list = function(req, res, next) {
+  People.getAll(dbUtils.getSession())
+    .then((response) => writeResponse(res, response))
     .catch(next);
 };
 
@@ -70,12 +69,12 @@ exports.list = function (req, res, next) {
  *           items:
  *             $ref: '#/definitions/Person'
  */
-exports.getBaconPeople = function (req, res, next) {
-  const name1 = req.query.name1;
-  const name2 = req.query.name2;
+exports.getBaconPeople = function(req, res, next) {
+  const { name1 } = req.query;
+  const { name2 } = req.query;
 
-  People.getBaconPeople(dbUtils.getSession(req), req.query.name1, req.query.name2)
-    .then(response => writeResponse(res, response))
+  People.getBaconPeople(dbUtils.getSession(), name1, name2)
+    .then((response) => writeResponse(res, response))
     .catch(next);
 };
 
@@ -105,11 +104,11 @@ exports.getBaconPeople = function (req, res, next) {
  *       404:
  *         description: Person not found
  */
-exports.findById = function (req, res, next) {
-  const id = req.params.id;
-  if (!id) throw {message: 'Invalid id', status: 400};
+exports.findById = function(req, res, next) {
+  const { id } = req.params;
+  if (!id) throw { message: 'Invalid id', status: 400 };
 
-  People.getById(dbUtils.getSession(req), id)
-    .then(response => writeResponse(res, response))
+  People.getById(dbUtils.getSession(), id)
+    .then((response) => writeResponse(res, response))
     .catch(next);
 };

@@ -9,15 +9,3 @@ const password = nconf.get('REDIS_PASSWORD');
 const graph = new RedisGraph(graph_name, host, port, { password });
 
 exports.getSession = () => graph;
-
-exports.dbWhere = function(name, keys) {
-  if (_.isArray(name)) {
-    _.map(name, (obj) => _whereTemplate(obj.name, obj.key, obj.paramKey));
-  } else if (keys && keys.length) {
-    return `WHERE ${_.map(keys, (key) => _whereTemplate(name, key)).join(' AND ')}`;
-  }
-};
-
-function whereTemplate(name, key, paramKey) {
-  return `${name}.${key}={${paramKey || key}}`;
-}

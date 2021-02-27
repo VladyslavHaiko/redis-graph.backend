@@ -8,7 +8,6 @@ const bodyParser = require('body-parser');
 const nconf = require('./config');
 const routes = require('./routes');
 const setAuthUser = require('./middlewares/setAuthUser');
-const neo4jSessionCleanup = require('./middlewares/neo4jSessionCleanup');
 const { writeError } = require('./helpers/response');
 
 const app = express();
@@ -61,7 +60,6 @@ api.use((req, res, next) => {
 
 // api custom middlewares:
 api.use(setAuthUser);
-api.use(neo4jSessionCleanup);
 
 // api routes
 api.post('/register', routes.users.register);
@@ -81,8 +79,8 @@ api.post('/movies/:id/rate', routes.movies.rateMovie);
 api.delete('/movies/:id/rate', routes.movies.deleteMovieRating);
 
 api.get('/people', routes.people.list);
-api.get('/people/:id', routes.people.findById);
 api.get('/people/bacon', routes.people.getBaconPeople);
+api.get('/people/:id', routes.people.findById);
 
 api.get('/genres', routes.genres.list);
 
