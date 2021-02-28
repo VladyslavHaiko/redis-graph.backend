@@ -9,7 +9,7 @@ const nconf = require('./config');
 const setAuthUser = require('./middlewares/setAuthUser');
 const { writeError } = require('./helpers/response');
 const {
-  moviesRouter, peopleRouter, authRouter, genresRouter
+  moviesRouter, peopleRouter, authRouter, genresRouter, dataRouter
 } = require('./routes');
 
 const app = express();
@@ -72,6 +72,8 @@ api.use('/movies', moviesRouter);
 api.use('/people', peopleRouter);
 
 api.use('/genres', genresRouter);
+
+api.use('/data', dataRouter);
 
 // api error handler
 api.use((err, req, res, next) => {

@@ -3,4 +3,5 @@ module.exports = {
   peopleRouter: require('./peopleRouter'),
   authRouter: require('./authRouter'),
   genresRouter: require('./genresRouter'),
+  dataRouter: require('./dataRouter')
 };
