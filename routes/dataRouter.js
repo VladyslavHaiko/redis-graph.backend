@@ -3,7 +3,8 @@ const { data } = require('../controllers');
 
 const dataRouter = Router();
 
-dataRouter.get('/movies', data.check);
-dataRouter.post('/genres',);
+dataRouter.post('/genres', data.setGenres);
+dataRouter.post('/movies', data.setMovies);
+// dataRouter.post('/genres',);
 
 module.exports = dataRouter;

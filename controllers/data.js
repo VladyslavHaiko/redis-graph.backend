@@ -4,13 +4,15 @@ const { writeResponse } = require('../helpers/response');
 const loginRequired = require('../middlewares/loginRequired');
 const dbUtils = require('../db/dbUtils');
 const {
-  genres,
-  // movies, actors, directorsOfFilms, moviesWithGenres
+  ACTORS: { actors },
+  // todo
+  // DIRECTORS_OF_FILMS: { directors },
+  GENRES: { genres },
+  MOVIES: { movies },
+  // todo
+  // MOVIES_WITH_GENRES: { moviesWithGenres }
 } = require('../data');
 
-exports.check = function() {
-  console.log(genres);
-};
 /**
  * @swagger
  * definition:
@@ -36,6 +38,104 @@ exports.check = function() {
  *       my_rating:
  *         type: integer
  */
+exports.setGenres = function(req, res, next) {
+  const session = dbUtils.getSession();
+  genres.forEach((genre) => {
+    session.query('create (g:Genre{name:$genre}) ', genre)
+      .catch(next);
+  });
+  writeResponse(res, `added ${genres.length} genres`);
+};
+
+exports.setMovies = function(req, res, next) {
+  const session = dbUtils.getSession();
+
+  movies.forEach((movie) => {
+    for (const field in movie) {
+      if (movie[field].low) movie[field] = movie[field].low;
+    }
+  });
+  movies.forEach(({
+    url, id, languages, title, countries, budget, duration, imdbId, imdbRating, imdbVotes,
+    movieId, plot, poster, poster_image, released, revenue, runtime, tagline, tmdbId, year
+  }) => {
+    session.query('create (m:Movie {url: $url,'
+      + 'id:$id, '
+      + 'languages:$languages,'
+      + ' title:$title,'
+      + ' countries:$countries,'
+      + ' budget:$budget, '
+      + 'duration:$duration,'
+      + ' imdbId:$imdbId, '
+      + 'imdbRating:$imdbRating,'
+      + ' imdbVotes:$imdbVotes, '
+      + 'movieId:$movieId, '
+      + 'plot:$plot, '
+      + 'poster:$poster,'
+      + ' poster_image:$poster_image, '
+      + 'released:$released, '
+      + 'revenue:$revenue,'
+      + ' runtime:$runtime,'
+      + ' tagline:$tagline, '
+      + 'tmdbId:$tmdbId, '
+      + 'year:$year})',
+    {
+      url,
+      id,
+      languages,
+      title,
+      countries,
+      budget,
+      duration,
+      imdbId,
+      imdbRating,
+      imdbVotes,
+      movieId,
+      plot,
+      poster,
+      poster_image,
+      released,
+      revenue,
+      runtime,
+      tagline,
+      tmdbId,
+      year
+    })
+      .catch(next);
+  });
+
+  writeResponse(res, `added ${movies.length} movies`);
+  // writeResponse(res, movies[0]);
+};
+// todo
+// eslint-disable-next-line no-unused-vars
+exports.setActors = function(req, res, next) {
+  // const session = dbUtils.getSession();
+
+  actors.forEach((actor) => {
+    for (const field in actor) {
+      if (actor[field].actor.properties) actor[field].actor = actor[field].actor.properties;
+      if (actor[field].actor.low) actor[field].actor = actor[field].actor.low;
+    }
+  });
+  console.log(actors);
+  // todo
+  // actors.forEach(({
+  //   actor: {
+  //     bio, born, bornIn, died, imdbId, name, poster, tmdbId, url
+  //   }, movieTitle, role
+  // }) => {
+  //   session.query(
+  //     'MATCH (m:Movie)\n'
+  //     + 'WHERE m.title=\'Toy Story\'\n'
+  //     + 'CREATE (a:Actor)-[r:ACTED_IN_MOVIE {role:\'captain\'}]->(m)\n'
+  //     + 'RETURN type(r), r.name,r.role', { }
+  //   )
+  //     .catch(next);
+  // });
+
+  writeResponse(res, `added ${actors.length} actors with relations [ACTED_IN_MOVIE] to their movies`);
+};
 
 /**
  * @swagger
