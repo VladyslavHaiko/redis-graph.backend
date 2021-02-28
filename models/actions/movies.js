@@ -1,7 +1,7 @@
 const _ = require('lodash');
-const Movie = require('./neo4j/movie');
-const Person = require('./neo4j/person');
-const Genre = require('./neo4j/genre');
+const Movie = require('../redis/movie');
+const Person = require('../redis/person');
+const Genre = require('../redis/genre');
 
 const _singleMovieWithDetails = function(movie) {
   if (movie.length) {
@@ -24,7 +24,6 @@ const _singleMovieWithDetails = function(movie) {
  */
 
 function manyMovies(listOfMovies) {
-  // console.log(listOfMovies._results);
   return listOfMovies._results.map((r) => new Movie(r.get('movie')));
 }
 

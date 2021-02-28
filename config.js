@@ -17,8 +17,8 @@ nconf.env(['PORT', 'NODE_ENV'])
       default: 3001
     },
     n: {
-      alias: 'neo4j',
-      describe: 'Use local or remote neo4j instance',
+      alias: 'redis',
+      describe: 'Use local or remote redis instance',
       demand: false,
       default: 'local'
     }

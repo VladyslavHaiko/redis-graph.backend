@@ -1,4 +1,4 @@
-const Genre = require('./neo4j/genre');
+const Genre = require('../redis/genre');
 
 const _manyGenres = function(result) {
   return result._results.map((r) => new Genre(r.get('genre')));

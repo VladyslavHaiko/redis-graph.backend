@@ -1,11 +1,11 @@
 const _ = require('lodash');
-const Person = require('./neo4j/person');
+const Person = require('../redis/person');
 
 const _singlePersonWithDetails = function(person) {
   if (person.length) {
     const result = {};
     _.extend(result, new Person(person.get('person')));
-    // mappings are temporary until the neo4j driver team decides what to do about numbers
+    // mappings are temporary until the redis driver team decides what to do about numbers
     result.directed = _.map(person.get('directed'), (record) => record);
     result.produced = _.map(person.get('produced'), (record) => record);
     result.wrote = _.map(person.get('wrote'), (record) => record);

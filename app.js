@@ -6,9 +6,11 @@ const swaggerUi = require('swagger-ui-express');
 const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
 const nconf = require('./config');
-const routes = require('./routes');
 const setAuthUser = require('./middlewares/setAuthUser');
 const { writeError } = require('./helpers/response');
+const {
+  moviesRouter, peopleRouter, authRouter, genresRouter
+} = require('./routes');
 
 const app = express();
 const api = express();
@@ -30,7 +32,7 @@ const options = {
   // import swaggerDefinitions
   swaggerDefinition,
   // path to the API docs
-  apis: ['./routes/*.js'],
+  apis: ['./controllers/*.js'],
 };
 
 // initialize swagger-jsdoc
@@ -62,27 +64,14 @@ api.use((req, res, next) => {
 api.use(setAuthUser);
 
 // api routes
-api.post('/register', routes.users.register);
-api.post('/login', routes.users.login);
-api.get('/users/me', routes.users.me);
 
-api.get('/movies', routes.movies.list);
-api.get('/movies/recommended', routes.movies.getRecommendedMovies);
-api.get('/movies/rated', routes.movies.findMoviesRatedByMe);
-api.get('/movies/:id', routes.movies.findById);
-api.get('/movies/genre/:id', routes.movies.findByGenre);
-api.get('/movies/daterange/:start/:end', routes.movies.findMoviesByDateRange);
-api.get('/movies/directed_by/:id', routes.movies.findMoviesByDirector);
-api.get('/movies/acted_in_by/:id', routes.movies.findMoviesByActor);
-api.get('/movies/written_by/:id', routes.movies.findMoviesByWriter);
-api.post('/movies/:id/rate', routes.movies.rateMovie);
-api.delete('/movies/:id/rate', routes.movies.deleteMovieRating);
+api.use('/auth', authRouter);
 
-api.get('/people', routes.people.list);
-api.get('/people/bacon', routes.people.getBaconPeople);
-api.get('/people/:id', routes.people.findById);
+api.use('/movies', moviesRouter);
 
-api.get('/genres', routes.genres.list);
+api.use('/people', peopleRouter);
+
+api.use('/genres', genresRouter);
 
 // api error handler
 api.use((err, req, res, next) => {

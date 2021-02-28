@@ -1,8 +1,8 @@
 // movies.js
-const Movies = require('../models/movies');
+const Movies = require('../models/actions/movies');
 const { writeResponse } = require('../helpers/response');
 const loginRequired = require('../middlewares/loginRequired');
-const dbUtils = require('../neo4j/dbUtils');
+const dbUtils = require('../db/dbUtils');
 
 /**
  * @swagger

@@ -1,6 +1,6 @@
-const People = require('../models/people');
+const People = require('../models/actions/people');
 const { writeResponse } = require('../helpers/response');
-const dbUtils = require('../neo4j/dbUtils');
+const dbUtils = require('../db/dbUtils');
 
 /**
  * @swagger

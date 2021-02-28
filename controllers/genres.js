@@ -1,6 +1,6 @@
-const Genres = require('../models/genres');
+const Genres = require('../models/actions/genres');
 const { writeResponse } = require('../helpers/response');
-const dbUtils = require('../neo4j/dbUtils');
+const dbUtils = require('../db/dbUtils');
 
 /**
  * @swagger

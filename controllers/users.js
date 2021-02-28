@@ -1,7 +1,7 @@
-const Users = require('../models/users');
+const Users = require('../models/actions/users');
 const { writeResponse } = require('../helpers/response');
 const loginRequired = require('../middlewares/loginRequired');
-const dbUtils = require('../neo4j/dbUtils');
+const dbUtils = require('../db/dbUtils');
 
 /**
  * @swagger
@@ -19,10 +19,10 @@ const dbUtils = require('../neo4j/dbUtils');
 
 /**
  * @swagger
- * /register:
+ * /auth/register:
  *   post:
  *     tags:
- *     - users
+ *     - auth
  *     description: Register a new user
  *     produces:
  *       - application/json
@@ -62,10 +62,10 @@ exports.register = function(req, res, next) {
 
 /**
  * @swagger
- * /login:
+ * /auth/login:
  *   post:
  *     tags:
- *     - users
+ *     - auth
  *     description: Login
  *     produces:
  *       - application/json
@@ -106,10 +106,10 @@ exports.login = function(req, res, next) {
 
 /**
  * @swagger
- * /users/me:
+ * /people/me:
  *   get:
  *     tags:
- *     - users
+ *     - people
  *     description: Get your user
  *     produces:
  *       - application/json

@@ -1,7 +1,7 @@
 const uuid = require('node-uuid');
 const randomstring = require('randomstring');
 const crypto = require('crypto');
-const User = require('./neo4j/user');
+const User = require('../redis/user');
 
 const register = function(session, username, password) {
   return session.query('MATCH (user:User {username: $username}) RETURN user', { username })
