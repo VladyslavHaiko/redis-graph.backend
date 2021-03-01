@@ -7,11 +7,12 @@ function _manyPeople(listOfPersons) {
 
 // get a single person by id
 const getById = function(session, id) {
-  const query = ['MATCH (u:User {id: $id})', 'RETURN DISTINCT u'].join('\n');
+  const query = ['MATCH (user:User {id: $id})', 'RETURN DISTINCT user'].join('\n');
 
   return session.query(query, { id }).then((result) => {
     if (result.hasNext()) {
-      return User(result.next().get('u'));
+      const record = result.next();
+      return new User(record.get('user'));
     }
     throw { message: 'person not found', status: 404 };
   });

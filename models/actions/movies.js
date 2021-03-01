@@ -85,7 +85,7 @@ const getByActor = function(session, id) {
 const getByGenre = function(session, genreId) {
   const query = [
     'MATCH (movie:Movie)-[:IN_GENRE]->(genre)',
-    'WHERE toLower(genre.name) = toLower($genreId) OR id(genre) = toInteger($genreId)', // while transitioning to the sandbox data
+    'WHERE toLower(genre.name) = toLower($genreId) OR id(genre) = toInteger($genreId)',
     'RETURN movie'
   ].join('\n');
 

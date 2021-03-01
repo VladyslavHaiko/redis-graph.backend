@@ -5,10 +5,6 @@ const _ = require('lodash');
 const Movie = function(_node, myRating) {
   _.extend(this, _node.properties);
 
-  // this.id = this.tmdbId;
-  // this.poster_image = this.poster;
-  // this.tagline = this.plot;
-
   if (this.duration) {
     this.duration = Number(this.duration);
   } else if (this.runtime) {

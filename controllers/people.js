@@ -71,6 +71,8 @@ exports.findById = function(req, res, next) {
   if (!id) throw { message: 'Invalid id', status: 400 };
 
   People.getById(dbUtils.getSession(), id)
-    .then((response) => writeResponse(res, response))
+    .then((response) => {
+      writeResponse(res, response);
+    })
     .catch(next);
 };
