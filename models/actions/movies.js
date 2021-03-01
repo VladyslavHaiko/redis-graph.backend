@@ -4,7 +4,7 @@ const Person = require('../redis/person');
 const Genre = require('../redis/genre');
 
 const _singleMovieWithDetails = function(movie) {
-  if (movie.length) {
+  if (movie._values.length) {
     const result = {};
     _.extend(result, new Movie(movie.get('movie'), movie.get('my_rating')));
 
@@ -35,36 +35,23 @@ const getAll = function(session) {
 
 // get a single movie by id
 const getById = function(session, movieId, userId) {
-  const query = [
-    'MATCH (movie:Movie {tmdbId: $movieId})',
-    'OPTIONAL MATCH (movie)<-[my_rated:RATED]-(me:User {id: $userId})',
-    'OPTIONAL MATCH (movie)<-[r:ACTED_IN]-(a:Person)',
-    'OPTIONAL MATCH (related:Movie)<--(a:Person) WHERE related <> movie',
-    'OPTIONAL MATCH (movie)-[:IN_GENRE]->(genre:Genre)',
-    'OPTIONAL MATCH (movie)<-[:DIRECTED]-(d:Person)',
-    'OPTIONAL MATCH (movie)<-[:PRODUCED]-(p:Person)',
-    'OPTIONAL MATCH (movie)<-[:WRITER_OF]-(w:Person)',
-    'WITH DISTINCT movie,',
-    'my_rated,',
-    'genre, d, p, w, a, r, related, count(related) AS countRelated',
-    'ORDER BY countRelated DESC',
-    'RETURN DISTINCT movie,',
-    'my_rated.rating AS my_rating,',
-    'collect(DISTINCT d) AS directors,',
-    'collect(DISTINCT p) AS producers,',
-    'collect(DISTINCT w) AS writers,',
-    'collect(DISTINCT{ name:a.name, id:a.tmdbId, poster_image:a.poster, role:r.role}) AS actors',
-    'collect(DISTINCT related) AS related,',
-    'collect(DISTINCT genre) AS genres',
-  ].join(' ');
-
+  const query = ['MATCH (movie:Movie {tmdbId: $movieId})\n'
+    + '  OPTIONAL MATCH (movie)<-[my_rated:RATED]-(me:User {id: $userId})\n'
+    + '  OPTIONAL MATCH (movie)<-[r:ACTED_IN_MOVIE]-(a:Actor)\n'
+    + '  OPTIONAL MATCH (movie)-[:IN_GENRE]->(genre:Genre)\n'
+    + '  OPTIONAL MATCH (movie)<-[:DIRECTED]-(d:Director)\n'
+    + '  WITH DISTINCT movie, my_rated, genre, d,  a, r\n'
+    + '  RETURN DISTINCT movie,\n'
+    + '  collect(DISTINCT d) AS directors,\n'
+    + '  collect(DISTINCT a) AS actors,\n'
+    + '  collect(DISTINCT genre) AS genres'].join(' ');
   return session.query(query, {
-    movieId,
-    userId
+    movieId: movieId.toString(),
+    userId: userId.toString()
   })
     .then((result) => {
       if (result.hasNext()) {
-        return _singleMovieWithDetails(result._results[0]);
+        return _singleMovieWithDetails(result.next());
       }
       throw { message: 'movie not found', status: 404 };
     });
@@ -82,12 +69,12 @@ const getByDateRange = function(session, start, end) {
     start: parseInt(start || 0, 10),
     end: parseInt(end || 0, 10)
   })
-    .then((result) => manyMovies(result));
+    .then((result) => manyMovies(result.next()));
 };
 
 // Get by date range
 const getByActor = function(session, id) {
-  const query = ['MATCH (actor:Person {tmdbId: $id})-[:ACTED_IN]->(movie:Movie)', 'RETURN DISTINCT movie'].join('\n');
+  const query = ['MATCH (actor:Actor {tmdbId: $id})-[:ACTED_IN_MOVIE]->(movie:Movie)', 'RETURN DISTINCT movie'].join('\n');
 
   return session.query(query, {
     id
@@ -109,7 +96,7 @@ const getByGenre = function(session, genreId) {
 
 // Get many movies directed by a person
 const getByDirector = function(session, personId) {
-  const query = ['MATCH (:Person {tmdbId: $personId})-[:DIRECTED]->(movie:Movie)', 'RETURN DISTINCT movie'].join('\n');
+  const query = ['MATCH (:Director {tmdbId: $personId})-[:DIRECTED]->(movie:Movie)', 'RETURN DISTINCT movie'].join('\n');
 
   return session.query(query, {
     personId
@@ -118,7 +105,7 @@ const getByDirector = function(session, personId) {
 
 // Get many movies written by a person
 const getByWriter = function(session, personId) {
-  const query = ['MATCH (:Person {tmdbId: $personId})-[:WRITER_OF]->(movie:Movie)', 'RETURN DISTINCT movie'].join('\n');
+  const query = ['MATCH (:Writer {tmdbId: $personId})-[:WRITER_OF]->(movie:Movie)', 'RETURN DISTINCT movie'].join('\n');
 
   return session.query(query, {
     personId

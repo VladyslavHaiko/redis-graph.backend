@@ -42,44 +42,6 @@ exports.list = function(req, res, next) {
 
 /**
  * @swagger
- * /people/bacon:
- *   get:
- *     tags:
- *     - people
- *     description: Returns all Bacon paths from person 1 to person 2
- *     summary: Returns all Bacon paths from person 1 to person 2
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: name1
- *         description: Name of the origin person
- *         in: query
- *         required: true
- *         type: string
- *       - name: name2
- *         description: Name of the target person
- *         in: query
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: A list of people
- *         schema:
- *           type: array
- *           items:
- *             $ref: '#/definitions/Person'
- */
-exports.getBaconPeople = function(req, res, next) {
-  const { name1 } = req.query;
-  const { name2 } = req.query;
-
-  People.getBaconPeople(dbUtils.getSession(), name1, name2)
-    .then((response) => writeResponse(res, response))
-    .catch(next);
-};
-
-/**
- * @swagger
  * /people/{id}:
  *   get:
  *     tags:

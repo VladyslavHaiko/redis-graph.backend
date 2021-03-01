@@ -69,7 +69,7 @@ api.use('/auth', authRouter);
 
 api.use('/movies', moviesRouter);
 
-api.use('/people', peopleRouter);
+api.use('/user', peopleRouter);
 
 api.use('/genres', genresRouter);
 

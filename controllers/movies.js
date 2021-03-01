@@ -316,7 +316,7 @@ exports.rateMovie = function(req, res, next) {
     }
 
     Movies.rate(dbUtils.getSession(), req.params.id, req.user.id, rating)
-      .then(() => writeResponse(res, {}))
+      .then(() => writeResponse(res, `succesfully added rate ${rating}`))
       .catch(next);
   });
 };
@@ -357,7 +357,7 @@ exports.deleteMovieRating = function(req, res, next) {
 
   loginRequired(req, res, () => {
     Movies.deleteRating(dbUtils.getSession(), req.params.id, req.user.id)
-      .then((response) => writeResponse(res, response, 204))
+      .then(() => writeResponse(res, 'successfully deleted rate', 204))
       .catch(next);
   });
 };
